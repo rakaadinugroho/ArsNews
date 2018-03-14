@@ -1,7 +1,8 @@
-package com.example.tomislav.arsnews
+package com.example.tomislav.arsnews.view.ui
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import com.example.tomislav.arsnews.R
 
 class MainActivity : AppCompatActivity() {
 
