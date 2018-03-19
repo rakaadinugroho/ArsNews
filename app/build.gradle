@@ -1,11 +1,9 @@
 apply plugin: 'com.android.application'
-
 apply plugin: 'kotlin-android'
-
 apply plugin: 'kotlin-android-extensions'
-
 apply plugin: 'kotlin-kapt'
-
+apply plugin: 'realm-android'
+apply plugin: 'io.fabric'
 
 android {
     compileSdkVersion 27
@@ -23,6 +21,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    buildTypes.each {
+        it.buildConfigField 'String', 'NewsAPIKey', NewsAPIKey
+    }
 }
 
 dependencies {
@@ -33,6 +34,7 @@ dependencies {
     implementation "com.android.support:design:$android_support_version"
     implementation "com.android.support:support-v4:$android_support_version"
     implementation "com.android.support:cardview-v7:$android_support_version"
+    implementation "com.android.support:recyclerview-v7:$android_support_version"
     //Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
@@ -53,11 +55,17 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:1.1.0"
     implementation "android.arch.paging:runtime:1.0.0-alpha6"
     implementation "android.arch.lifecycle:reactivestreams:1.1.0"
-
+    //Joda date and time
+    implementation 'net.danlew:android.joda:2.9.9.2'
     //Glide
     implementation "com.github.bumptech.glide:glide:$glide_version"
     kapt "com.github.bumptech.glide:compiler:$glide_version"
-
+    //Anko
+    implementation "org.jetbrains.anko:anko-coroutines:$anko_version"
+    //Fabric
+    implementation ('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {
+        transitive = true;
+    }
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'

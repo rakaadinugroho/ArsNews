@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:orientation="vertical"
+    android:layout_marginBottom="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/white">
+    <TextView
+        android:id="@+id/latest_news_item_title"
+        android:layout_marginRight="64dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-bold"
+        android:textStyle="bold"
+        android:textColor="#de000000"
+        android:lineSpacingExtra="9sp"
+        tools:text="Beijing&apos;s Smoggy Skies Obscure China Slowdown"
+        />
+    <TextView
+        android:id="@+id/latest_news_item_description"
+        android:layout_marginTop="4dp"
+        android:layout_width="312dp"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        android:fontFamily="sans-serif"
+        android:textStyle="normal"
+        android:textColor="#444444"
+        android:lineSpacingExtra="7sp"
+        tools:text="China’s economy kicked off 2018 strongly—kind of. This latest bump doesn’t look very sustainable, however."/>
+    <LinearLayout android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="8dp">
+        <TextView
+            android:id="@+id/latest_news_item_time"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif"
+            android:textStyle="normal"
+            android:textColor="#de777777"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            tools:text="26 mins ago by "/>
+        <TextView
+            android:id="@+id/latest_news_item_author"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium"
+            android:textStyle="normal"
+            android:textColor="#673ab7"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            tools:text="The New York Times "/>
+    </LinearLayout>
+        />
+</LinearLayout>
