@@ -6,8 +6,12 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
 import com.example.tomislav.arsnews.R
 import dagger.android.support.DaggerAppCompatActivity
+import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : DaggerAppCompatActivity() {
+
+class MainActivity : DaggerAppCompatActivity(){
+
+
 
     private val BACK_STACK_ROOT_TAG = "root_fragment"
 
@@ -15,10 +19,11 @@ class MainActivity : DaggerAppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
+        setSupportActionBar(my_toolbar)
         if (savedInstanceState == null) {
             addFragment(NewsFragment(),R.id.fragment_container)
         }
+
     }
 
     inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) {
@@ -44,4 +49,10 @@ class MainActivity : DaggerAppCompatActivity() {
         supportFragmentManager.inTransaction{replace(frameId, fragment).addToBackStack(null)}
 
     }
+
+
+
+
+
+
 }
