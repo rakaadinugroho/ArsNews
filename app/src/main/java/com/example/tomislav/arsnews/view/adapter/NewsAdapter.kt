@@ -9,18 +9,26 @@ import com.example.tomislav.arsnews.utils.adapter.AdapterConstants
 import com.example.tomislav.arsnews.utils.adapter.ViewType
 import com.example.tomislav.arsnews.utils.adapter.ViewTypeDelegateAdapter
 import java.util.ArrayList
+import android.view.animation.AnimationUtils
+import com.example.tomislav.arsnews.R
 
-class NewsAdapter(listener: OnViewSelectedListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+class NewsAdapter(private val listener: OnViewSelectedListener,private val mRecyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var items: ArrayList<ViewType>
-    private var delegateAdapters = SparseArrayCompat<ViewTypeDelegateAdapter>()
+    lateinit var tempItems: ArrayList<ViewType>
+    private var searchShowState=false
+    var delegateAdapters = SparseArrayCompat<ViewTypeDelegateAdapter>()
+
     private val loadingItem = object : ViewType {
         override fun getViewType() = AdapterConstants.LOADING
     }
     private val topNewsItem = object : ViewType {
         override fun getViewType() = AdapterConstants.TOP_NEWS
     }
+
     lateinit var topNewsViewHolder:TopNewsDelegateAdapter.TopNewsViewHolder
+
 
     init {
         delegateAdapters.apply {
@@ -30,7 +38,7 @@ class NewsAdapter(listener: OnViewSelectedListener) : RecyclerView.Adapter<Recyc
         }
         items = ArrayList()
         items.add(topNewsItem)
-        items.add(loadingItem)
+        setLoading()
 
     }
 
@@ -49,27 +57,54 @@ class NewsAdapter(listener: OnViewSelectedListener) : RecyclerView.Adapter<Recyc
     override fun getItemViewType(position: Int) = items[position].getViewType()
 
     fun addNews(news: List<NewsItem>) {
-        // first remove loading and notify
         val initPosition = items.size - 1
         items.removeAt(initPosition)
         notifyItemRemoved(initPosition)
 
-        // insert news and the loading at the end of the list
         items.addAll(news)
-        items.add(loadingItem)
-        notifyItemRangeChanged(initPosition, items.size + 1 /* plus loading item */)
+        notifyItemRangeChanged(initPosition, items.size + 1 )
     }
 
-    fun clearAndAddNews(news: List<NewsItem>) {
+    fun reload(){
         items.clear()
-        notifyItemRangeRemoved(0, getLastPosition())
-        items.addAll(news)
-        items.add(loadingItem)
-        notifyItemRangeInserted(0, items.size)
+        items = ArrayList()
+        items.add(topNewsItem)
+        setLoading()
+        runLayoutAnimation()
     }
 
-    fun getNews(): List<NewsItem> =
-            items.filter { it.getViewType() == AdapterConstants.NEWS }.map { it as NewsItem }
+    fun showSearch(showState:Boolean){
 
-    private fun getLastPosition() = if (items.lastIndex == -1) 0 else items.lastIndex
+        if(showState){
+            if(searchShowState)
+                items.clear()
+            else {
+                searchShowState=true
+                tempItems = items.clone() as ArrayList<ViewType>
+                items.clear()
+            }
+            //TODO add search title delegate
+        }
+        else{
+            items=tempItems.clone() as ArrayList<ViewType>
+            tempItems.clear()
+            searchShowState=false
+        }
+
+        runLayoutAnimation()
+    }
+
+    private fun runLayoutAnimation() {
+        val context = mRecyclerView.context
+        val controller = AnimationUtils.loadLayoutAnimation(context, R.anim.layout_animation_fall_down)
+
+        mRecyclerView.layoutAnimation = controller
+        mRecyclerView.adapter.notifyDataSetChanged()
+        mRecyclerView.scheduleLayoutAnimation()
+    }
+
+    fun setLoading(){
+        items.add(loadingItem)
+    }
+
 }

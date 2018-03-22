@@ -34,7 +34,10 @@
                         android:src="@drawable/ic_search" />
 
                     <EditText
+                        android:id="@+id/search_editext"
                         android:layout_width="300dp"
+                        android:imeOptions="actionSearch"
+                        android:inputType="text"
                         android:layout_height="match_parent"
                         android:hint="@string/search_hint"
                         android:backgroundTint="@color/cardview_light_background"

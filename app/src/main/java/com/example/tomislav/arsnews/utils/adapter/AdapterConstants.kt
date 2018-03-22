@@ -5,4 +5,5 @@ object AdapterConstants {
     const val LOADING = 2
     const val TOP_NEWS = 3
     const val TOP_NEWS_ITEM =4
+    const val SEARCH_TITLE_ITEM = 5
 }

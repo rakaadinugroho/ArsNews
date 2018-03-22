@@ -43,6 +43,7 @@ class NewsRepository(private val newsAPIService: NewsAPIService){
 
     suspend fun getNewsForSearch(query:String, page:Int, pageSize:Int):List<NewsItem>{
         val result = newsAPIService.getNewsForSearch(query,pageSize,page).awaitResult()
+
         return when (result) {
             is Result.Ok -> process(result.value)
             is Result.Error -> throw Throwable("HTTP error: ${result.response.message()}")

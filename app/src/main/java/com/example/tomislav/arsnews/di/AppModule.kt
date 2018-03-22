@@ -10,6 +10,6 @@ import javax.inject.Singleton
 class AppModule{
     @Provides
     @Singleton
-    fun provideCurrencyRepository(newsAPIService: NewsAPIService): NewsRepository = NewsRepository(newsAPIService)
+    fun provideNewsRepository(newsAPIService: NewsAPIService): NewsRepository = NewsRepository(newsAPIService)
 
 }

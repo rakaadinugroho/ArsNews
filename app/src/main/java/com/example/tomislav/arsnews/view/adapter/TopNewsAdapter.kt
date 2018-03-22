@@ -43,21 +43,7 @@ class TopNewsAdapter(listener: OnViewSelectedListener):RecyclerView.Adapter<Recy
         val initPosition = items.size - 1
         items.removeAt(initPosition)
         notifyItemRemoved(initPosition)
-        // insert news
         items.addAll(news)
         notifyItemRangeChanged(initPosition, items.size )
     }
-
-    fun clearAndAddNews(news: List<NewsItemTop>) {
-        items.clear()
-        notifyItemRangeRemoved(0, getLastPosition())
-        items.addAll(news)
-        notifyItemRangeInserted(0, items.size)
-    }
-
-    fun getNews(): List<NewsItem> =
-            items.filter { it.getViewType() == AdapterConstants.NEWS }.map { it as NewsItem }
-
-    private fun getLastPosition() = if (items.lastIndex == -1) 0 else items.lastIndex
-
 }

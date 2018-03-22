@@ -2,8 +2,8 @@ package com.example.tomislav.arsnews.view.ui
 
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentTransaction
@@ -16,15 +16,17 @@ import javax.inject.Inject
 import android.widget.RelativeLayout
 import android.view.ViewGroup.MarginLayoutParams
 import com.example.tomislav.arsnews.utils.NetworkUtils
-import com.example.tomislav.arsnews.utils.UiUtils
-import com.example.tomislav.arsnews.utils.androidLazy
 import com.example.tomislav.arsnews.utils.waitForConnection
-import com.example.tomislav.arsnews.view.adapter.NewsAdapter
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import android.util.TypedValue
-
-
+import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
+import android.widget.TextView
+import io.reactivex.Flowable
+import android.support.design.widget.Snackbar
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 
 
 class MainActivity : DaggerAppCompatActivity(){
@@ -34,9 +36,12 @@ class MainActivity : DaggerAppCompatActivity(){
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
 
+
     private val BACK_STACK_ROOT_TAG = "root_fragment"
     var subscriptions = CompositeDisposable()
     lateinit var waitForNetwork:Disposable
+    private var searchState = false
+    private val fragment=NewsFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,9 +49,6 @@ class MainActivity : DaggerAppCompatActivity(){
         setSupportActionBar(my_toolbar)
         model = ViewModelProviders.of(this,viewModelFactory).get(NewsViewModel::class.java)
 
-  //      if (savedInstanceState == null) {
-    //        addFragment(NewsFragment(),R.id.fragment_container)
-      //  }
 
         if (!NetworkUtils.isNetworkAvailable(this)) {
             setNoConnectionFragment()
@@ -54,10 +56,36 @@ class MainActivity : DaggerAppCompatActivity(){
             Log.d("Connection error: ", "No connection!")
         }
         else{
-            addFragment(NewsFragment(),R.id.fragment_container)
+            addFragment(fragment,R.id.fragment_container)
 
         }
+
+
+
+        search_editext.setOnEditorActionListener(object : TextView.OnEditorActionListener{
+            override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    if(NetworkUtils.isNetworkAvailable(this@MainActivity)){
+                        if(!search_editext.text.toString().isEmpty()){
+                            searchState=true
+                            fragment.performSearch(search_editext.text.toString())
+                        }
+                        else
+                            Snackbar.make(fragment_container,"Enter text for search",Snackbar.LENGTH_LONG).show()
+                    }
+                    else
+                        Snackbar.make(fragment_container,"No connection",Snackbar.LENGTH_LONG).show()
+
+                    val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(search_editext.windowToken, 0)
+                    return true;
+                }
+                return false;
+            }
+        })
     }
+
+
 
     private fun setNoConnectionFragment(){
         supportActionBar?.hide()
@@ -80,20 +108,13 @@ class MainActivity : DaggerAppCompatActivity(){
         marginParams.setMargins(0, px, 0, 0)
         val layoutParams = RelativeLayout.LayoutParams(marginParams)
         fragment_container.layoutParams=layoutParams
-        replaceFragment(NewsFragment(),R.id.fragment_container)
+        replaceFragment(fragment,R.id.fragment_container)
     }
 
     inline fun FragmentManager.inTransaction(func: FragmentTransaction.() -> FragmentTransaction) {
         beginTransaction().func().commit()
     }
 
-    /*fun MainActivity.show(hero: Models.Hero) {
-        val bundle=Bundle()
-        bundle.putParcelable("hero",hero)
-        var fragment = HeroesFragment()
-        fragment.arguments = bundle
-        replaceFragment(fragment,R.id.fragment_container)
-    }*/
 
     fun DaggerAppCompatActivity.addFragment(fragment: Fragment, frameId: Int){
         supportFragmentManager.apply {
@@ -112,8 +133,14 @@ class MainActivity : DaggerAppCompatActivity(){
     }
 
     override fun onBackPressed() {
-        finish()
+        if (searchState){
+            fragment.backToNews()
+            searchState=false
+        }
+        else
+            finish()
     }
+
 
 
 }

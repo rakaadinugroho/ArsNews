@@ -2,7 +2,6 @@ package com.example.tomislav.arsnews.view.ui
 
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -15,8 +14,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import com.example.tomislav.arsnews.R
-import com.example.tomislav.arsnews.data.model.NewsItem
 import com.example.tomislav.arsnews.utils.*
+import com.example.tomislav.arsnews.utils.adapter.InfiniteScrollListener
 import com.example.tomislav.arsnews.view.adapter.NewsAdapter
 import com.example.tomislav.arsnews.viewmodel.NewsViewModel
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
@@ -29,10 +28,9 @@ import kotlinx.android.synthetic.main.news_fragment.*
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
-
 import javax.inject.Inject
-import android.content.Context.INPUT_METHOD_SERVICE
-import android.view.inputmethod.InputMethodManager
+import android.view.animation.AnimationUtils
+import kotlinx.android.synthetic.main.activity_main.*
 
 
 class NewsFragment():DaggerFragment(), OnViewSelectedListener {
@@ -41,11 +39,12 @@ class NewsFragment():DaggerFragment(), OnViewSelectedListener {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
-    var subscriptions: CompositeDisposable= CompositeDisposable()
+    private var subscriptions: CompositeDisposable= CompositeDisposable()
     lateinit var waitForNetwork:Disposable
-    private val newsAdapter by androidLazy { NewsAdapter(this) }
+    private lateinit var newsAdapter:NewsAdapter
     protected var job: Job? = null
-
+    private var query=""
+    private var waitingForNetwork  = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -63,10 +62,14 @@ class NewsFragment():DaggerFragment(), OnViewSelectedListener {
         initLatestAdapter()
         initSwipeToRefresh()
         loadNewsFromNetwork()
+
     }
 
     private fun initLatestAdapter() {
+        val animation = AnimationUtils.loadLayoutAnimation(context,R.anim.layout_animation_fall_down)
+        news_list.layoutAnimation=animation
         news_list?.layoutManager = LinearLayoutManager(activity)
+        newsAdapter=NewsAdapter(this,news_list)
         news_list?.adapter = newsAdapter
 
     }
@@ -77,9 +80,10 @@ class NewsFragment():DaggerFragment(), OnViewSelectedListener {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ connected ->
                     if (connected!!) {
-                        UiUtils.showToast(context!!,"Connected",Toast.LENGTH_SHORT)
-                        //model.updateNews()
+                        UiUtils.showToast(context!!,"Connected - Auto refresh",Toast.LENGTH_LONG)
+                        getLatestAndTopNews(true)
                         subscriptions.remove(waitForNetwork)
+                        waitingForNetwork=false
                     }
 
                 }
@@ -87,7 +91,7 @@ class NewsFragment():DaggerFragment(), OnViewSelectedListener {
         return waitForNetwork
     }
 
-
+    //TODO redundant
     private fun loadNewsFromNetwork(){
         if (!NetworkUtils.isNetworkAvailable(context!!)) {
             Log.d("Connection error: ", "No connection!")
@@ -95,44 +99,91 @@ class NewsFragment():DaggerFragment(), OnViewSelectedListener {
             subscriptions.add(waitForConnection())
         }
         else{
-            getLatestAndTopNews()
+            getLatestAndTopNews(false)
         }
     }
-    //TODO implemnt calls
-    private fun getLatestAndTopNews(){
+
+    fun performSearch(queryString: String){
+        query=queryString
+        newsAdapter.showSearch(true)
+        news_list.addOnScrollListener(InfiniteScrollListener(this::getNewsForSearch,news_list.layoutManager as LinearLayoutManager))
+        getNewsForSearch(1,10)
+        swipe_refresh.isEnabled=false
+    }
+
+    fun backToNews(){
+        swipe_refresh.isEnabled=true
+        newsAdapter.showSearch(false)
+        news_list.clearOnScrollListeners()
+    }
+
+    private fun getLatestAndTopNews(refresh:Boolean){
 
         job= launch(UI) {
             try {
                 val latest = model.getLatestNews()
                 val top = model.getTopHeadLines()
-                newsAdapter.apply {
-                    addNews(latest)
-                    topNewsViewHolder.topNewsAdapter.addNews(top)
+                if(refresh){
+                    newsAdapter.apply {
+                        reload()
+                        addNews(latest)
+                        topNewsViewHolder.topNewsAdapter.addNews(top)
+                    }
                 }
+                else{
+                    newsAdapter.apply {
+                        addNews(latest)
+                        topNewsViewHolder.topNewsAdapter.addNews(top)
+                    }
+                }
+                waitingForNetwork=false
+
             } catch (e: Throwable) {
                 if (isVisible) {
-                    Log.d("TAGIC",e.message.orEmpty(),e)
                     Snackbar.make(news_list, e.message.orEmpty(), Snackbar.LENGTH_INDEFINITE)
-                            .setAction("RETRY") { getLatestAndTopNews() }
+                            .setAction("RETRY") { getLatestAndTopNews(false) }
                             .show()
                 }
             }
         }
+    }
 
-
-
-
+    fun getNewsForSearch(page:Int,pageSize:Int){
+        if(page == 1)
+            newsAdapter.setLoading()
+        job= launch(UI) {
+            try {
+                val searchNews = model.getSearchNews(query,1,10)
+                newsAdapter.apply {
+                    addNews(searchNews)
+                }
+            } catch (e: Throwable) {
+                if (isVisible) {
+                    Snackbar.make(news_list, e.message.orEmpty(), Snackbar.LENGTH_INDEFINITE)
+                            .setAction("RETRY") { getLatestAndTopNews(false) }
+                            .show()
+                }
+            }
+        }
     }
 
     private fun initSwipeToRefresh() {
         swipe_refresh.setColorSchemeColors(ContextCompat.getColor(context!!,R.color.colorPrimary),ContextCompat.getColor(context!!,R.color.colorAccent))
         swipe_refresh.setOnRefreshListener {
             if (!NetworkUtils.isNetworkAvailable(context!!)) {
-                UiUtils.showToast(context!!, "No connection!",Toast.LENGTH_SHORT)
+                Snackbar.make(news_list,"No connection",Snackbar.LENGTH_LONG).show()
+                if(!waitingForNetwork){
+                    subscriptions.add(waitForConnection())
+                    waitingForNetwork=true
+                }
+
                 swipe_refresh.isRefreshing=false
             }
             else{
-                //getLatestAndTopNews()
+                if(!waitingForNetwork) {
+                    getLatestAndTopNews(true)
+                    waitingForNetwork=true
+                }
                 swipe_refresh.isRefreshing=false
             }
         }
@@ -164,4 +215,7 @@ class NewsFragment():DaggerFragment(), OnViewSelectedListener {
             startActivity(intent)
         }
     }
+
+
+
 }
