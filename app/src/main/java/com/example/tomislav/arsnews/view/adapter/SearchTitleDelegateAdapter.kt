@@ -15,5 +15,5 @@ class SearchTitleDelegateAdapter : ViewTypeDelegateAdapter {
     }
 
     class LoadingViewHolder(parent: ViewGroup) : RecyclerView.ViewHolder(
-            parent.inflate(R.layout.news_item_loading))
+            parent.inflate(R.layout.search_title_item))
 }

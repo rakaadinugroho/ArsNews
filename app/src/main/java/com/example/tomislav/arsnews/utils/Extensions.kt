@@ -25,9 +25,6 @@ fun ViewGroup.inflate(layoutId: Int, attachToRoot: Boolean = false): View {
 fun ImageView.loadImg(imageUrl: String) =
         Glide.with(context).load(imageUrl).into(this)
 
-
-fun <T> androidLazy(initializer: () -> T) : Lazy<T> = lazy(LazyThreadSafetyMode.NONE, initializer)
-
 fun MainActivity.waitForConnection() {
     this.waitForNetwork = ReactiveNetwork.observeInternetConnectivity()
             .subscribeOn(Schedulers.io())

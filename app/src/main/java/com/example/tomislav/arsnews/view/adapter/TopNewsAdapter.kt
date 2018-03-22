@@ -43,6 +43,7 @@ class TopNewsAdapter(listener: OnViewSelectedListener):RecyclerView.Adapter<Recy
         val initPosition = items.size - 1
         items.removeAt(initPosition)
         notifyItemRemoved(initPosition)
+        items.clear()
         items.addAll(news)
         notifyItemRangeChanged(initPosition, items.size )
     }

@@ -13,12 +13,13 @@ import android.view.animation.AnimationUtils
 import com.example.tomislav.arsnews.R
 
 
-class NewsAdapter(private val listener: OnViewSelectedListener,private val mRecyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class NewsAdapter(private val listener: OnViewSelectedListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var items: ArrayList<ViewType>
     lateinit var tempItems: ArrayList<ViewType>
     private var searchShowState=false
     var delegateAdapters = SparseArrayCompat<ViewTypeDelegateAdapter>()
+    lateinit var mRecyclerView: RecyclerView
 
     private val loadingItem = object : ViewType {
         override fun getViewType() = AdapterConstants.LOADING
@@ -26,6 +27,10 @@ class NewsAdapter(private val listener: OnViewSelectedListener,private val mRecy
     private val topNewsItem = object : ViewType {
         override fun getViewType() = AdapterConstants.TOP_NEWS
     }
+    private val searchTitle = object : ViewType {
+        override fun getViewType() = AdapterConstants.SEARCH_TITLE_ITEM
+    }
+
 
     lateinit var topNewsViewHolder:TopNewsDelegateAdapter.TopNewsViewHolder
 
@@ -35,11 +40,16 @@ class NewsAdapter(private val listener: OnViewSelectedListener,private val mRecy
             put(AdapterConstants.LOADING, LoadingDelegateAdapter())
             put(AdapterConstants.NEWS, NewsDelegateAdapter(listener))
             put(AdapterConstants.TOP_NEWS, TopNewsDelegateAdapter(listener))
+            put(AdapterConstants.SEARCH_TITLE_ITEM, SearchTitleDelegateAdapter())
         }
         items = ArrayList()
         items.add(topNewsItem)
         setLoading()
 
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
+        mRecyclerView=recyclerView
     }
 
     override fun getItemCount(): Int = items.size
@@ -83,7 +93,7 @@ class NewsAdapter(private val listener: OnViewSelectedListener,private val mRecy
                 tempItems = items.clone() as ArrayList<ViewType>
                 items.clear()
             }
-            //TODO add search title delegate
+            items.add(searchTitle)
         }
         else{
             items=tempItems.clone() as ArrayList<ViewType>

@@ -28,9 +28,12 @@
                     android:orientation="horizontal">
 
                     <ImageView
+                        android:id="@+id/search_icon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:layout_margin="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginStart="12dp"
                         android:src="@drawable/ic_search" />
 
                     <EditText
@@ -41,7 +44,7 @@
                         android:layout_height="match_parent"
                         android:hint="@string/search_hint"
                         android:backgroundTint="@color/cardview_light_background"
-                        android:paddingTop="12dp" />
+                         />
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 

@@ -25,6 +25,8 @@ import android.view.inputmethod.EditorInfo
 import android.widget.TextView
 import io.reactivex.Flowable
 import android.support.design.widget.Snackbar
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 
@@ -83,6 +85,22 @@ class MainActivity : DaggerAppCompatActivity(){
                 return false;
             }
         })
+
+        search_editext.addTextChangedListener(object : TextWatcher{
+
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                if(s?.isNullOrEmpty()!!)
+                    search_icon.setImageDrawable(getDrawable(R.drawable.ic_search))
+                else
+                    search_icon.setImageDrawable(getDrawable(R.drawable.abc_ic_clear_material))
+
+            }
+
+        })
+
+        search_icon.setOnClickListener({search_editext.text.clear()})
     }
 
 

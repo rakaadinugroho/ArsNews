@@ -9,7 +9,6 @@ import com.example.tomislav.arsnews.data.model.NewsItem
 import com.example.tomislav.arsnews.utils.OnViewSelectedListener
 import com.example.tomislav.arsnews.utils.adapter.ViewType
 import com.example.tomislav.arsnews.utils.adapter.ViewTypeDelegateAdapter
-import com.example.tomislav.arsnews.utils.androidLazy
 import com.example.tomislav.arsnews.utils.inflate
 import kotlinx.android.synthetic.main.top_news_recycler_view_item.view.*
 
@@ -31,7 +30,7 @@ class TopNewsDelegateAdapter(val viewActions: OnViewSelectedListener) : ViewType
         val recyclerView = itemView.top_new_recycler_view
         val topHeadlinesTitle = itemView.top_headlines_title
         val latestNewsTitle = itemView.latest_news_title
-        val topNewsAdapter by androidLazy { TopNewsAdapter(viewActions) }
+        val topNewsAdapter  = TopNewsAdapter(viewActions)
 
         fun bind() {
             var layoutManager = LinearLayoutManager(parent.context)

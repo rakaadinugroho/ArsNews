@@ -61,7 +61,7 @@ class NewsFragment():DaggerFragment(), OnViewSelectedListener {
         super.onActivityCreated(savedInstanceState)
         initLatestAdapter()
         initSwipeToRefresh()
-        loadNewsFromNetwork()
+        getLatestAndTopNews(false)
 
     }
 
@@ -69,7 +69,7 @@ class NewsFragment():DaggerFragment(), OnViewSelectedListener {
         val animation = AnimationUtils.loadLayoutAnimation(context,R.anim.layout_animation_fall_down)
         news_list.layoutAnimation=animation
         news_list?.layoutManager = LinearLayoutManager(activity)
-        newsAdapter=NewsAdapter(this,news_list)
+        newsAdapter=NewsAdapter(this)
         news_list?.adapter = newsAdapter
 
     }
@@ -91,17 +91,6 @@ class NewsFragment():DaggerFragment(), OnViewSelectedListener {
         return waitForNetwork
     }
 
-    //TODO redundant
-    private fun loadNewsFromNetwork(){
-        if (!NetworkUtils.isNetworkAvailable(context!!)) {
-            Log.d("Connection error: ", "No connection!")
-            UiUtils.showToast(context!!, "Offline mode", Snackbar.LENGTH_LONG)
-            subscriptions.add(waitForConnection())
-        }
-        else{
-            getLatestAndTopNews(false)
-        }
-    }
 
     fun performSearch(queryString: String){
         query=queryString
@@ -148,7 +137,7 @@ class NewsFragment():DaggerFragment(), OnViewSelectedListener {
         }
     }
 
-    fun getNewsForSearch(page:Int,pageSize:Int){
+    private fun getNewsForSearch(page:Int,pageSize:Int){
         if(page == 1)
             newsAdapter.setLoading()
         job= launch(UI) {
