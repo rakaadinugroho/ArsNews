@@ -56,5 +56,5 @@ xmlns:tools="http://schemas.android.com/tools"
             android:layout_height="match_parent"
             tools:text="The New York Times "/>
     </LinearLayout>
-        />
+
 </LinearLayout>

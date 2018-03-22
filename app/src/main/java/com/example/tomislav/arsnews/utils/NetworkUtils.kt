@@ -2,7 +2,6 @@ package com.example.tomislav.arsnews.utils
 
 import android.content.Context
 import android.net.ConnectivityManager
-import io.reactivex.Observable
 
 object NetworkUtils {
 

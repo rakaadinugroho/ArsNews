@@ -1,18 +1,19 @@
 package com.example.tomislav.arsnews.data.model
 
-import io.realm.RealmModel
-import io.realm.RealmObject
-import io.realm.annotations.Index
-import io.realm.annotations.PrimaryKey
+import com.example.tomislav.arsnews.utils.adapter.AdapterConstants
+import com.example.tomislav.arsnews.utils.adapter.ViewType
 
+open class NewsItem(
+        val source: Source,
+         val title:String,
+         val description:String,
+         val url:String,
+         val urlToImage:String,
+         val publishedAt:String):ViewType{
 
-open class NewsItem(): RealmObject(){
-    var source: String? = null
-    @PrimaryKey var title:String? = null
-    var description:String? = null
-    var url:String? = null
-    var urlToImage:String? = null
-    @Index var publishedAt:String? = null
-    @Index var category:String? = null
+    constructor(item:NewsItem) : this(item.source,item.title,item.description,item.url,item.urlToImage,item.publishedAt)
+
+    override fun getViewType() = AdapterConstants.NEWS
+
 
 }
